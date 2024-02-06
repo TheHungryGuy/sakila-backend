@@ -117,29 +117,18 @@ def rent_movie(film_id, customer_id):
 def display_films():
     films = Film.query.all()
     
-    films_data = []
-    for film in films:
-        # Calculate the additional information
-        inventory_count = Inventory.query.filter_by(film_id=film.film_id).count()
-        rentals_out_count = Rental.query.join(Inventory).filter(
-            Inventory.film_id == film.film_id,
-            Rental.return_date.is_(None)
-        ).count()
-        remaining_copies = inventory_count - rentals_out_count
-
-        # Append film details along with additional information to the films_data list
-        films_data.append({
+    # Convert the list of films to a list of dictionaries with desired fields
+    films_data = [
+        {
             'film_id': film.film_id,
             'title': film.title,
             'description': film.description,
             'release_year': film.release_year,
             'rating': film.rating,
-            'special_features': film.special_features,
-            'number_of_copies': inventory_count,
-            'number_of_rentals_out': rentals_out_count,
-            'remaining_copies': remaining_copies
-        })
-
+            'special_features': film.special_features
+        } for film in films
+    ]
+    # Return the list of films as JSON
     return jsonify({'films': films_data})
 
 # New API endpoint to get the top 5 most rented movies
@@ -305,6 +294,5 @@ def movie_info():
     }
 
     return jsonify(film_info)
-
 if __name__ == '__main__':
     app.run(debug=True)
