@@ -399,5 +399,39 @@ def remaining_inventory(film_id):
         return jsonify(data)
 
 
+# Flask Route to Fetch Customer List
+@app.route('/customers', methods=['GET'])
+def get_customer_list():
+    query = """
+            SELECT 
+                customer.customer_id,
+                customer.first_name,
+                customer.last_name,
+                customer.email,
+                address.address,
+                city.city,
+                country.country,
+                address.phone,
+                customer.store_id,
+                customer.create_date AS registration_date,
+                customer.last_update
+            FROM 
+                customer
+            JOIN 
+                address ON customer.address_id = address.address_id
+            JOIN 
+                city ON address.city_id = city.city_id
+            JOIN 
+                country ON city.country_id = country.country_id
+            ORDER BY
+                customer.customer_id;
+        """
+    with db.engine.connect() as connection:
+        result = connection.execute(text(query))
+        # Convert each row to a dictionary
+        data = [dict(row._mapping) for row in result]
+        return jsonify(data)
+
+
 if __name__ == "__main__":
     app.run(debug=True)
