@@ -103,8 +103,8 @@ def rent_movie(inventory_id, customer_id):
     # Get the current date and time
     rental_date = datetime.utcnow()
 
-    # Hardcode the staff ID for now, you can modify this based on your requirements
-    staff_id = 1  # Change this as needed
+    # Hardcode the staff ID for now
+    staff_id = 1  
 
     # Insert a new rental record into the database
     new_rental = Rental(
@@ -116,7 +116,7 @@ def rent_movie(inventory_id, customer_id):
     db.session.add(new_rental)
     db.session.commit()
 
-    return jsonify({"message": "Movie rented successfully."})
+    return jsonify({"message": f"Movie rented successfully to ID#{customer_id}"})
 
 
 @app.route("/all_films")
