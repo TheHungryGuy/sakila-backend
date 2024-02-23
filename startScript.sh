@@ -1,4 +1,6 @@
 #!/bin/bash 
+### To start up enter
+### source startScript.sh
 
 echo "Starting Python Enviroment"
 source virt/Scripts/activate
