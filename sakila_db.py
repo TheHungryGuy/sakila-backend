@@ -7,15 +7,28 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+# Initialize Flask application
 app = Flask(__name__)
+
+# Enable Cross-Origin Resource Sharing (CORS)
 CORS(app)
-# Set the SECRET_KEY for Flask
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Set the SECRET_KEY for Flask from environment variable
 app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
+
+# Set up SQLAlchemy database connection
 app.config[
     "SQLALCHEMY_DATABASE_URI"
 ] = f"mysql+pymysql://root:{app.config['SECRET_KEY']}@localhost/sakila"
 db = SQLAlchemy(app)
+
+# Set up database migration
 migrate = Migrate(app, db)
+
+# Define SQLAlchemy models to represent database tables
 
 
 class Film(db.Model):
@@ -56,9 +69,12 @@ class Inventory(db.Model):
     film_id = db.Column(db.Integer, db.ForeignKey("film.film_id"))
     film = db.relationship("Film", backref="inventory")
     available_copies = db.Column(db.Integer)
+
+
 class Staff(db.Model):
     __tablename__ = "staff"
     staff_id = db.Column(db.Integer, primary_key=True)
+
 
 class Rental(db.Model):
     __tablename__ = "rental"
@@ -72,6 +88,7 @@ class Rental(db.Model):
     staff_id = db.Column(db.Integer, db.ForeignKey("staff.staff_id"))  # Add this line
     staff = db.relationship("Staff")  # Add this line
 
+
 class Customer(db.Model):
     __tablename__ = "customer"
     customer_id = db.Column(db.Integer, primary_key=True)
@@ -80,6 +97,7 @@ class Customer(db.Model):
 # Route to check if a customer ID exists
 @app.route("/check_customer/<int:customer_id>")
 def check_customer(customer_id):
+    # Check if the customer ID exists in the database
     customer_exists = (
         Customer.query.filter_by(customer_id=customer_id).first() is not None
     )
@@ -89,6 +107,7 @@ def check_customer(customer_id):
 # Route to check if a movie is available
 @app.route("/check_movie_availability/<int:film_id>")
 def check_movie_availability(film_id):
+    # Check if the movie with the given ID is available in the inventory
     inventory = (
         Inventory.query.filter_by(film_id=film_id)
         .filter(Inventory.available_copies > 0)
@@ -104,14 +123,14 @@ def rent_movie(inventory_id, customer_id):
     rental_date = datetime.utcnow()
 
     # Hardcode the staff ID for now
-    staff_id = 1  
+    staff_id = 1
 
     # Insert a new rental record into the database
     new_rental = Rental(
         rental_date=rental_date,
         inventory_id=inventory_id,
         customer_id=customer_id,
-        staff_id=staff_id
+        staff_id=staff_id,
     )
     db.session.add(new_rental)
     db.session.commit()
@@ -119,11 +138,13 @@ def rent_movie(inventory_id, customer_id):
     return jsonify({"message": f"Movie rented successfully to ID#{customer_id}"})
 
 
+# Route to display all films
 @app.route("/all_films")
 def display_films():
+    # Retrieve all films from the database
     films = Film.query.all()
 
-    # Convert the list of films to a list of dictionaries with desired fields
+    # Convert the list of films to JSON format
     films_data = [
         {
             "film_id": film.film_id,
@@ -135,11 +156,10 @@ def display_films():
         }
         for film in films
     ]
-    # Return the list of films as JSON
     return jsonify({"films": films_data})
 
 
-# New API endpoint to get the top 5 most rented movies
+# Route to get the top 5 most rented movies
 @app.route("/top_rented_movies")
 def top_rented_movies():
     # Query the database to get the top 5 most rented movies
@@ -176,12 +196,14 @@ def top_rented_movies():
     return jsonify({"top_movies": top_movies_data})
 
 
-# New API endpoint to get additional details for a specific movie
+# Route to get additional details for a specific movie
 @app.route("/movie_details/<string:title>")
 def movie_details(title):
+    # Query the database to get details of the movie with the given title
     movie = Film.query.filter_by(title=title).first()
 
     if movie:
+        # Return movie details as JSON
         return jsonify(
             {
                 "description": movie.description,
@@ -194,7 +216,7 @@ def movie_details(title):
         return jsonify({"error": "Movie not found"})
 
 
-# New API endpoint to get the top actors based on movie count
+# Route to get the top actors based on movie count
 @app.route("/top_actors")
 def top_actors():
     # Query the database to get the top actors based on movie count
@@ -228,9 +250,10 @@ def top_actors():
     return jsonify({"top_actors": top_actors_data})
 
 
-# New API endpoint to get the top 5 movies for a specific actor
+# Route to get the top 5 movies for a specific actor
 @app.route("/top_movies_for_actor/<int:actor_id>")
 def top_movies_for_actor(actor_id):
+    # Query the database to get the top 5 movies for the actor with the given ID
     top_movies = (
         db.session.query(
             Film.film_id, Film.title, func.count(Rental.rental_id).label("rental_count")
@@ -246,6 +269,7 @@ def top_movies_for_actor(actor_id):
         .all()
     )
 
+    # Convert the result to a list of dictionaries
     top_movies_data = [
         {"film_id": film_id, "title": title, "rental_count": rental_count}
         for film_id, title, rental_count in top_movies
@@ -254,6 +278,7 @@ def top_movies_for_actor(actor_id):
     return jsonify({"top_movies": top_movies_data})
 
 
+# Route to get information about movie copies
 @app.route("/movie_copies_info")
 def movie_copies_info():
     # Query to get information about the total number of copies, rentals, and remaining copies per movie
@@ -282,6 +307,7 @@ def movie_copies_info():
     return jsonify({"movie_copies_info": movie_copies_data})
 
 
+# Route to get information about movies
 @app.route("/movie_info")
 def movie_info():
     # Get the movie_id from the query parameters
@@ -372,9 +398,10 @@ def movie_info():
     return jsonify(film_info)
 
 
-# New route for the SQL query
+# Route to get remaining inventory for a movie
 @app.route('/remaining_inventory/<int:film_id>', methods=['GET'])
 def remaining_inventory(film_id):
+    # SQL query to get remaining inventory for a movie
     query = """
         SELECT
             i.inventory_id,
@@ -399,9 +426,10 @@ def remaining_inventory(film_id):
         return jsonify(data)
 
 
-# Flask Route to Fetch Customer List
+# Route to fetch customer list
 @app.route('/customers', methods=['GET'])
 def get_customer_list():
+    # SQL query to fetch customer list with additional details
     query = """
             SELECT 
                 customer.customer_id,
@@ -433,5 +461,6 @@ def get_customer_list():
         return jsonify(data)
 
 
+# Run the Flask application
 if __name__ == "__main__":
     app.run(debug=True)
