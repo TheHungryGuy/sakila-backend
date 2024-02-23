@@ -85,8 +85,8 @@ class Rental(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.customer_id"))
     customer = db.relationship("Customer", backref="rentals")
     return_date = db.Column(db.DateTime)
-    staff_id = db.Column(db.Integer, db.ForeignKey("staff.staff_id"))  # Add this line
-    staff = db.relationship("Staff")  # Add this line
+    staff_id = db.Column(db.Integer, db.ForeignKey("staff.staff_id")) 
+    staff = db.relationship("Staff")  
 
 
 class Customer(db.Model):
