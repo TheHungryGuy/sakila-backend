@@ -4,7 +4,7 @@ from datetime import datetime
 from flask import jsonify, request
 from sqlalchemy import Text, text, func
 from . import app
-from .models import Actor, Film, FilmActor, Inventory, Rental, Customer, db
+from .models import *
 
 
 # Route to check if a customer ID exists
