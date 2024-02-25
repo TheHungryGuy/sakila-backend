@@ -373,4 +373,81 @@ def get_customer_list():
         data = [dict(row._mapping) for row in result]
         return jsonify(data)
 
+# Route to fetch movie list based on requested genre
+@app.route('/films_by_genre', methods=['GET'])
+def films_by_genre():
+    # Get the genre name from the request or use an empty string if not provided
+    genre_name = request.args.get('genre_name', '')
 
+    with db.engine.connect() as connection:
+        # SQL query to retrieve films by genre
+        sql = """
+            SELECT film.*
+            FROM film
+            JOIN film_category ON film.film_id = film_category.film_id
+            JOIN category ON film_category.category_id = category.category_id
+            WHERE category.name LIKE :genre_name
+        """
+
+        # Execute the query
+        result = connection.execute(text(sql), {'genre_name': '%' + genre_name + '%'})
+
+        # Fetch all results
+        results = result.fetchall()
+
+        # Convert results to a list of dictionaries
+        films = [dict(row._mapping)for row in results]
+
+        return jsonify({'films': films})
+    
+# Route to fetch movie list based on requested actor name
+@app.route('/films_by_actor', methods=['GET'])
+def films_by_actor():
+    # Get the genre name from the request or use an empty string if not provided
+    actor_name = request.args.get('actor_name', '')
+
+    with db.engine.connect() as connection:
+        # SQL query to retrieve films by genre
+        sql = """
+            SELECT film.*
+            FROM film
+            JOIN film_actor ON film.film_id = film_actor.film_id
+            JOIN actor ON film_actor.actor_id = actor.actor_id
+            WHERE CONCAT(actor.first_name, ' ', actor.last_name) LIKE :actor_name
+        """
+
+        # Execute the query
+        result = connection.execute(text(sql), {'actor_name': '%' + actor_name + '%'})
+
+        # Fetch all results
+        results = result.fetchall()
+
+        # Convert results to a list of dictionaries
+        films = [dict(row._mapping)for row in results]
+
+        return jsonify({'films': films})
+
+# Route to fetch movie list based on requested movie title
+@app.route('/films_by_title', methods=['GET'])
+def films_by_title():
+    # Get the genre name from the request or use an empty string if not provided
+    title = request.args.get('title', '')
+
+    with db.engine.connect() as connection:
+        # SQL query to retrieve films by genre
+        sql = """
+            SELECT *
+            FROM film
+            WHERE title LIKE :title
+        """
+
+        # Execute the query
+        result = connection.execute(text(sql), {'title': '%' + title + '%'})
+
+        # Fetch all results
+        results = result.fetchall()
+
+        # Convert results to a list of dictionaries
+        films = [dict(row._mapping)for row in results]
+
+        return jsonify({'films': films})
