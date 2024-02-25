@@ -407,7 +407,7 @@ def films_by_actor():
     actor_name = request.args.get('actor_name', '')
 
     with db.engine.connect() as connection:
-        # SQL query to retrieve films by genre
+        # SQL query to retrieve films by actor
         sql = """
             SELECT film.*
             FROM film
@@ -434,7 +434,7 @@ def films_by_title():
     title = request.args.get('title', '')
 
     with db.engine.connect() as connection:
-        # SQL query to retrieve films by genre
+        # SQL query to retrieve films by title
         sql = """
             SELECT *
             FROM film
