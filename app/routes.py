@@ -454,8 +454,8 @@ def films_by_title():
     
     
 # Route to add a customer
-@app.route('/insert_customer', methods=['POST'])
-def insert_customer():
+@app.route('/add_customer', methods=['POST'])
+def add_customer():
     # Extracting data from the request
     data = request.json
     store_id = 1 #We are combining both stores for the sake of the project timeline
@@ -476,7 +476,7 @@ def insert_customer():
                                        'email': email, 'address_id': address_id})
         connection.commit()
 
-    return jsonify({'message': 'Customer inserted successfully'})
+    return jsonify({'message': 'Customer added successfully'})
 
 # Route to update a customer
 @app.route('/update_customer/<int:customer_id>', methods=['PUT'])
