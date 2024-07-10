@@ -8,7 +8,13 @@ The Sakila project aims to create a user-friendly interface for managing a film 
 
 ## Demo
 
-Check out the [video demo](https://www.youtube.com/CS490_Sakila_Project_Milestone2) for an overview of the project features.
+Check out the [video demo](https://youtu.be/rjRNDyvZUNI?si=R_gaIat5oHANhf49) for an overview of the project features.
+
+<img src="https://github.com/TheHungryGuy/sakila-frontend/assets/60024274/9f4756f0-8138-4cb2-abde-fae255b0877c" alt="Landing Page" width="500"/>
+<img src="https://github.com/TheHungryGuy/sakila-frontend/assets/60024274/94168526-3772-451a-9429-a03be72e4dbd" alt="Films Page" width="500"/>
+<img src="https://github.com/TheHungryGuy/sakila-frontend/assets/60024274/7cb78aae-0811-41f2-8d68-9691d3782ad4" alt="Films Page Rental" width="500"/>
+<img src="https://github.com/TheHungryGuy/sakila-frontend/assets/60024274/39ba6ff1-bfdf-40e4-abde-a147a82651d6" alt="Customer Page" width="500"/>
+
 
 ## Repositories
 
